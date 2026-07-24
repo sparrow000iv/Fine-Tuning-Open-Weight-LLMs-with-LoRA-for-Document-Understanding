@@ -1,0 +1,38 @@
+# Best config for Mistral-7B with LoRA r=16
+# This config gave me the best results (93.5% F1 on val set)
+
+experiment_name: mistral_lora_r16_doc_understanding
+use_wandb: true
+
+model:
+  name: mistralai/Mistral-7B-Instruct-v0.2
+  use_qlora: false  # Set to true if you have < 24GB VRAM
+
+lora:
+  r: 16
+  alpha: 32  # alpha = 2*r seems to work well
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  output_dir: checkpoints/mistral_lora_r16
+  epochs: 3
+  batch_size: 4
+  gradient_accumulation: 8  # effective batch size = 32
+  learning_rate: 2e-4
+  weight_decay: 0.01
+  warmup_steps: 100
+  scheduler: cosine
+  max_seq_length: 2048
+  seed: 42
+
+data:
+  train_path: data/processed/train.jsonl
+  eval_path: data/processed/eval.jsonl
